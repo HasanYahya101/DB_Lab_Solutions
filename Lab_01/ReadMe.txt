@@ -1,0 +1,1 @@
+I didn't provide a Solution File for this First Lab, because it only involves manually creating, importing and exporting tables using Design View in Microsoft SQL Management Studio. All, of this can be done without any code (using Instructions given in the Manual).
