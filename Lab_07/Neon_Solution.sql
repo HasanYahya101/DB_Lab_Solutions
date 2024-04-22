@@ -84,6 +84,33 @@ BEGIN
     INSERT INTO Notify (StudentID, Notification)
     VALUES (@RollNumber, @RegistrationStatus);
 END;
+-- According to university rules, Students before enrolling in new course should have no fee charges due.
+-- Create a trigger to ensure that no student is enrolled in new course with more than 20,000 fee charges
+-- due.
+GO
+CREATE TRIGGER EnforceFeeLimit
+ON Registration
+FOR INSERT
+AS
+BEGIN
+    DECLARE @RollNumber varchar(7);
+    DECLARE @TotalDues int;
+
+    SELECT @RollNumber = RollNumber, @TotalDues = TotalDues
+    FROM inserted;
+
+    IF EXISTS (
+        SELECT 1
+        FROM ChallanForm
+        WHERE RollNumber = @RollNumber
+        AND TotalDues > 20000
+    )
+    BEGIN
+        RAISERROR ('Cannot enroll in new course. Fee charges exceed 20,000.', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
 -- Create a trigger that do not let you delete any course semester whose available seats are less than 10. 
 -- Print ‘not possible’. 
 -- Otherwise prints ‘Successfully deleted’, after you delete any course semester whose available seats are 
